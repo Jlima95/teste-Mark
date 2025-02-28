@@ -42,6 +42,8 @@ client.on('disconnected', async (reason) => {
 });
 
 // Processamento de mensagens recebidas
+const { Buttons } = require('whatsapp-web.js');
+
 client.on('message', async (msg) => {
     try {
         const message = msg.body.trim().toLowerCase();
@@ -55,26 +57,37 @@ client.on('message', async (msg) => {
         if (/Bruno/i.test(message)) {
             console.log('✅ Gatilho de inicialização!');
 
-            const list = new List(
+            // Criando os botões interativos
+            const buttons = new Buttons(
                 'Escolha uma opção abaixo:',
-                'Ver opções',
                 [
-                    {
-                        title: 'Atendimento',
-                        rows: [
-                            { id: 'vendas', title: 'Vendas' },
-                            { id: 'locacao', title: 'Locação' },
-                            { id: 'financeiro', title: 'Financeiro' }
-                        ]
-                    }
+                    { body: 'Vendas' },
+                    { body: 'Locação' },
+                    { body: 'Financeiro' }
                 ],
-                'Selecione uma opção:',
-                'Bot de Atendimento'
+                'Bot de Atendimento',
+                'Clique em uma opção abaixo:'
             );
 
             await client.sendMessage(msg.from, 'Olá! 👋 Bem-vindo ao nosso atendimento.');
             await new Promise(resolve => setTimeout(resolve, 500));
-            await client.sendMessage(msg.from, list);
+            await client.sendMessage(msg.from, buttons);
+            return;
+        }
+
+        // Lógica para processar os botões interativos
+        if (message === 'vendas') {
+            await client.sendMessage(msg.from, '🛍️ Você escolheu *Vendas*! Como podemos te ajudar?');
+            return;
+        }
+
+        if (message === 'locação') {
+            await client.sendMessage(msg.from, '🏠 Você escolheu *Locação*! Para qual tipo de locação você precisa de suporte?');
+            return;
+        }
+
+        if (message === 'financeiro') {
+            await client.sendMessage(msg.from, '💰 Você escolheu *Financeiro*! Como podemos te auxiliar?');
             return;
         }
 
