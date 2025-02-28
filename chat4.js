@@ -1,20 +1,24 @@
 const express = require('express');
 const qrcode = require('qrcode-terminal');
-const { Client, List, LocalAuth } = require('whatsapp-web.js');
+const { Client, Buttons, LocalAuth } = require('whatsapp-web.js');
+const fs = require('fs');
+
+// Carregar configurações do JSON
+const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
 const app = express();
-const port = 3000;
+const port = config.server.port;
 
 // Middleware para processar JSON no Express
 app.use(express.json());
 
 // Configuração do cliente WhatsApp
 const client = new Client({
-    authStrategy: new LocalAuth({ clientId: "bot-session", dataPath: './auth_data' }),
+    authStrategy: new LocalAuth({ clientId: config.bot.clientId, dataPath: config.bot.dataPath }),
     puppeteer: {
-        executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-        headless: false,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
+        executablePath: config.bot.chromeExecutablePath,
+        headless: config.bot.headless,
+        args: config.bot.args
     }
 });
 
@@ -42,8 +46,6 @@ client.on('disconnected', async (reason) => {
 });
 
 // Processamento de mensagens recebidas
-const { Buttons } = require('whatsapp-web.js');
-
 client.on('message', async (msg) => {
     try {
         const message = msg.body.trim().toLowerCase();
@@ -52,8 +54,9 @@ client.on('message', async (msg) => {
         console.log(`📩 Mensagem recebida: "${msg.body}" de ${msg.from}`);
 
         await chat.sendStateTyping();
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 3000));
 
+        // Responder com menu de botões
         if (/Bruno/i.test(message)) {
             console.log('✅ Gatilho de inicialização!');
 
@@ -70,24 +73,20 @@ client.on('message', async (msg) => {
             );
 
             await client.sendMessage(msg.from, 'Olá! 👋 Bem-vindo ao nosso atendimento.');
-            await new Promise(resolve => setTimeout(resolve, 500));
+            await new Promise(resolve => setTimeout(resolve, 3000));
             await client.sendMessage(msg.from, buttons);
             return;
         }
 
         // Lógica para processar os botões interativos
-        if (message === 'vendas') {
-            await client.sendMessage(msg.from, '🛍️ Você escolheu *Vendas*! Como podemos te ajudar?');
-            return;
-        }
+        const responses = {
+            'vendas': '🛍️ Você escolheu *Vendas*! Como podemos te ajudar?',
+            'locação': '🏠 Você escolheu *Locação*! Para qual tipo de locação você precisa de suporte?',
+            'financeiro': '💰 Você escolheu *Financeiro*! Como podemos te auxiliar?'
+        };
 
-        if (message === 'locação') {
-            await client.sendMessage(msg.from, '🏠 Você escolheu *Locação*! Para qual tipo de locação você precisa de suporte?');
-            return;
-        }
-
-        if (message === 'financeiro') {
-            await client.sendMessage(msg.from, '💰 Você escolheu *Financeiro*! Como podemos te auxiliar?');
+        if (responses[message]) {
+            await client.sendMessage(msg.from, responses[message]);
             return;
         }
 
@@ -100,15 +99,21 @@ client.on('message', async (msg) => {
 
 // Rota API para enviar mensagem via HTTP
 app.post('/send-message', async (req, res) => {
-    const { number, message } = req.body;
+    const { numbers, message } = req.body;
 
-    if (!number || !message) {
-        return res.status(400).json({ error: "Número e mensagem são obrigatórios!" });
+    if (!numbers || !message) {
+        return res.status(400).json({ error: "Os campos 'numbers' (array) e 'message' são obrigatórios!" });
+    }
+
+    if (!Array.isArray(numbers)) {
+        return res.status(400).json({ error: "'numbers' deve ser um array de números." });
     }
 
     try {
-        await client.sendMessage(number + "@c.us", message);
-        res.json({ success: true, message: "Mensagem enviada!" });
+        for (const number of numbers) {
+            await client.sendMessage(`${number}@c.us`, message);
+        }
+        res.json({ success: true, message: "Mensagens enviadas com sucesso!" });
     } catch (error) {
         console.error("Erro ao enviar mensagem:", error);
         res.status(500).json({ error: "Erro ao enviar mensagem!" });
