@@ -3,10 +3,11 @@
       "qrcode-terminal": "Exibe QR Code no terminal para autenticação.",
       "whatsapp-web.js": {
         "Client": "Instancia o cliente do WhatsApp Web.",
-        "List": "Cria listas de opções interativas.",
+        "Buttons": "Cria botões interativos para o usuário.",
         "LocalAuth": "Gerencia autenticação local para persistência de sessão."
       },
-      "express": "Configura um servidor HTTP para interações via API."
+      "express": "Configura um servidor HTTP para interações via API.",
+      "fs": "Gerencia leitura e escrita de arquivos, como o JSON de configuração."
     },
     "clientConfig": {
       "authStrategy": {
@@ -15,15 +16,14 @@
       },
       "puppeteer": {
         "executablePath": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-        "headless": false,
+        "headless": true,
         "args": ["--no-sandbox", "--disable-setuid-sandbox"]
       }
     },
     "serverConfig": {
       "port": 3000,
       "endpoints": {
-        "/status": "Retorna o status do bot.",
-        "/send": "Envia mensagens via API."
+        "/send-message": "Envia mensagens via API para um ou mais contatos."
       }
     },
     "events": {
@@ -33,11 +33,10 @@
       "message": {
         "processing": "Lida com mensagens recebidas e responde conforme comandos reconhecidos.",
         "triggers": {
-          "Bruno": "Ativa menu interativo com lista de opções.",
-          "vendas": "Pergunta se o usuário já é cliente.",
-          "locacao": "Pergunta se o usuário já é cliente.",
-          "sim": "Direciona para uma vendedora.",
-          "nao": "Oferece mais informações para novos clientes."
+          "Bruno": "Ativa menu interativo com botões de opções.",
+          "vendas": "Responde com mensagem específica para vendas.",
+          "locação": "Responde com mensagem específica para locação.",
+          "financeiro": "Responde com mensagem específica para financeiro."
         },
         "default": "Mensagem de erro caso não entenda o comando."
       }
@@ -45,7 +44,8 @@
     "functions": {
       "sendStateTyping": "Simula digitação antes de responder.",
       "sendMessage": "Envia mensagens para o usuário.",
-      "destroy": "Derruba e reinicia o cliente em caso de desconexão."
+      "destroy": "Derruba e reinicia o cliente em caso de desconexão.",
+      "initialize": "Inicializa o cliente do WhatsApp Web."
     },
     "initialization": "Chama client.initialize() para iniciar o bot e inicia o servidor Express."
   }
