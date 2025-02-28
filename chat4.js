@@ -53,7 +53,7 @@ client.on('message', async (msg) => {
         await new Promise(resolve => setTimeout(resolve, 500));
 
         if (/Bruno/i.test(message)) {
-            console.log('✅ Gatilho de menu ativado!');
+            console.log('✅ Gatilho de inicialização!');
 
             const list = new List(
                 'Escolha uma opção abaixo:',
