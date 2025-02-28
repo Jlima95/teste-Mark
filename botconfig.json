@@ -1,0 +1,52 @@
+{
+    "modules": {
+      "qrcode-terminal": "Exibe QR Code no terminal para autenticação.",
+      "whatsapp-web.js": {
+        "Client": "Instancia o cliente do WhatsApp Web.",
+        "List": "Cria listas de opções interativas.",
+        "LocalAuth": "Gerencia autenticação local para persistência de sessão."
+      },
+      "express": "Configura um servidor HTTP para interações via API."
+    },
+    "clientConfig": {
+      "authStrategy": {
+        "clientId": "bot-session",
+        "dataPath": "./auth_data"
+      },
+      "puppeteer": {
+        "executablePath": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+        "headless": false,
+        "args": ["--no-sandbox", "--disable-setuid-sandbox"]
+      }
+    },
+    "serverConfig": {
+      "port": 3000,
+      "endpoints": {
+        "/status": "Retorna o status do bot.",
+        "/send": "Envia mensagens via API."
+      }
+    },
+    "events": {
+      "qr": "Gera e exibe QR Code para autenticação.",
+      "ready": "Confirma que o bot está conectado.",
+      "disconnected": "Gerencia reconexão caso o bot seja desconectado.",
+      "message": {
+        "processing": "Lida com mensagens recebidas e responde conforme comandos reconhecidos.",
+        "triggers": {
+          "Bruno": "Ativa menu interativo com lista de opções.",
+          "vendas": "Pergunta se o usuário já é cliente.",
+          "locacao": "Pergunta se o usuário já é cliente.",
+          "sim": "Direciona para uma vendedora.",
+          "nao": "Oferece mais informações para novos clientes."
+        },
+        "default": "Mensagem de erro caso não entenda o comando."
+      }
+    },
+    "functions": {
+      "sendStateTyping": "Simula digitação antes de responder.",
+      "sendMessage": "Envia mensagens para o usuário.",
+      "destroy": "Derruba e reinicia o cliente em caso de desconexão."
+    },
+    "initialization": "Chama client.initialize() para iniciar o bot e inicia o servidor Express."
+  }
+  
